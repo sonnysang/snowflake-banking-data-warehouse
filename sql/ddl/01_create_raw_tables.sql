@@ -1,6 +1,5 @@
-
 -- ============================================================
--- Project: Modern Retail Banking Data Warehouse on Snowflake
+-- Project: Snowflake Banking Data Warehouse
 -- File: 01_create_raw_tables.sql
 -- Purpose: Create raw-layer tables for synthetic banking data
 -- ============================================================
@@ -9,11 +8,12 @@ USE WAREHOUSE DEV_WH;
 USE DATABASE PORTFOLIO_DB;
 USE SCHEMA RAW;
 
+
 -- ============================================================
--- 1. BRANCHES
+-- 1. BRANCH
 -- ============================================================
 
-CREATE OR REPLACE TABLE BRANCHES (
+CREATE OR REPLACE TABLE BRANCH (
     BRANCH_ID              NUMBER(10, 0)       NOT NULL,
     BRANCH_CODE            VARCHAR(10)         NOT NULL,
     BRANCH_NAME            VARCHAR(100)        NOT NULL,
@@ -28,20 +28,20 @@ CREATE OR REPLACE TABLE BRANCHES (
     CREATED_TS             TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
     UPDATED_TS             TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
 
-    CONSTRAINT PK_BRANCHES
+    CONSTRAINT PK_BRANCH
         PRIMARY KEY (BRANCH_ID),
 
-    CONSTRAINT UQ_BRANCHES_CODE
+    CONSTRAINT UQ_BRANCH_CODE
         UNIQUE (BRANCH_CODE)
 )
 COMMENT = 'Synthetic retail bank branch master data';
 
 
 -- ============================================================
--- 2. PRODUCTS
+-- 2. PRODUCT
 -- ============================================================
 
-CREATE OR REPLACE TABLE PRODUCTS (
+CREATE OR REPLACE TABLE PRODUCT (
     PRODUCT_ID             NUMBER(10, 0)       NOT NULL,
     PRODUCT_CODE           VARCHAR(20)         NOT NULL,
     PRODUCT_NAME           VARCHAR(100)        NOT NULL,
@@ -55,20 +55,20 @@ CREATE OR REPLACE TABLE PRODUCTS (
     CREATED_TS             TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
     UPDATED_TS             TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
 
-    CONSTRAINT PK_PRODUCTS
+    CONSTRAINT PK_PRODUCT
         PRIMARY KEY (PRODUCT_ID),
 
-    CONSTRAINT UQ_PRODUCTS_CODE
+    CONSTRAINT UQ_PRODUCT_CODE
         UNIQUE (PRODUCT_CODE)
 )
 COMMENT = 'Synthetic deposit and loan product master data';
 
 
 -- ============================================================
--- 3. CUSTOMERS
+-- 3. CUSTOMER
 -- ============================================================
 
-CREATE OR REPLACE TABLE CUSTOMERS (
+CREATE OR REPLACE TABLE CUSTOMER (
     CUSTOMER_ID            NUMBER(12, 0)       NOT NULL,
     CUSTOMER_NUMBER        VARCHAR(20)         NOT NULL,
     CUSTOMER_TYPE          VARCHAR(20)         NOT NULL,
@@ -91,24 +91,24 @@ CREATE OR REPLACE TABLE CUSTOMERS (
     CREATED_TS             TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
     UPDATED_TS             TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
 
-    CONSTRAINT PK_CUSTOMERS
+    CONSTRAINT PK_CUSTOMER
         PRIMARY KEY (CUSTOMER_ID),
 
-    CONSTRAINT UQ_CUSTOMERS_NUMBER
+    CONSTRAINT UQ_CUSTOMER_NUMBER
         UNIQUE (CUSTOMER_NUMBER),
 
-    CONSTRAINT FK_CUSTOMERS_BRANCH
+    CONSTRAINT FK_CUSTOMER_PRIMARY_BRANCH
         FOREIGN KEY (PRIMARY_BRANCH_ID)
-        REFERENCES BRANCHES (BRANCH_ID)
+        REFERENCES BRANCH (BRANCH_ID)
 )
 COMMENT = 'Synthetic individual and business customer master data';
 
 
 -- ============================================================
--- 4. ACCOUNTS
+-- 4. ACCOUNT
 -- ============================================================
 
-CREATE OR REPLACE TABLE ACCOUNTS (
+CREATE OR REPLACE TABLE ACCOUNT (
     ACCOUNT_ID             NUMBER(12, 0)       NOT NULL,
     ACCOUNT_NUMBER         VARCHAR(20)         NOT NULL,
     PRODUCT_ID             NUMBER(10, 0)       NOT NULL,
@@ -125,28 +125,28 @@ CREATE OR REPLACE TABLE ACCOUNTS (
     CREATED_TS             TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
     UPDATED_TS             TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
 
-    CONSTRAINT PK_ACCOUNTS
+    CONSTRAINT PK_ACCOUNT
         PRIMARY KEY (ACCOUNT_ID),
 
-    CONSTRAINT UQ_ACCOUNTS_NUMBER
+    CONSTRAINT UQ_ACCOUNT_NUMBER
         UNIQUE (ACCOUNT_NUMBER),
 
-    CONSTRAINT FK_ACCOUNTS_PRODUCT
+    CONSTRAINT FK_ACCOUNT_PRODUCT
         FOREIGN KEY (PRODUCT_ID)
-        REFERENCES PRODUCTS (PRODUCT_ID),
+        REFERENCES PRODUCT (PRODUCT_ID),
 
-    CONSTRAINT FK_ACCOUNTS_BRANCH
+    CONSTRAINT FK_ACCOUNT_BRANCH
         FOREIGN KEY (BRANCH_ID)
-        REFERENCES BRANCHES (BRANCH_ID)
+        REFERENCES BRANCH (BRANCH_ID)
 )
 COMMENT = 'Synthetic deposit account data';
 
 
 -- ============================================================
--- 5. CUSTOMER-ACCOUNT RELATIONSHIPS
+-- 5. CUSTOMER_ACCOUNT_RELATIONSHIP
 -- ============================================================
 
-CREATE OR REPLACE TABLE CUSTOMER_ACCOUNT_RELATIONSHIPS (
+CREATE OR REPLACE TABLE CUSTOMER_ACCOUNT_RELATIONSHIP (
     RELATIONSHIP_ID         NUMBER(15, 0)      NOT NULL,
     CUSTOMER_ID             NUMBER(12, 0)      NOT NULL,
     ACCOUNT_ID              NUMBER(12, 0)      NOT NULL,
@@ -158,25 +158,25 @@ CREATE OR REPLACE TABLE CUSTOMER_ACCOUNT_RELATIONSHIPS (
     CREATED_TS              TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP(),
     UPDATED_TS              TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP(),
 
-    CONSTRAINT PK_CUSTOMER_ACCOUNT_RELATIONSHIPS
+    CONSTRAINT PK_CUSTOMER_ACCOUNT_RELATIONSHIP
         PRIMARY KEY (RELATIONSHIP_ID),
 
     CONSTRAINT FK_CAR_CUSTOMER
         FOREIGN KEY (CUSTOMER_ID)
-        REFERENCES CUSTOMERS (CUSTOMER_ID),
+        REFERENCES CUSTOMER (CUSTOMER_ID),
 
     CONSTRAINT FK_CAR_ACCOUNT
         FOREIGN KEY (ACCOUNT_ID)
-        REFERENCES ACCOUNTS (ACCOUNT_ID)
+        REFERENCES ACCOUNT (ACCOUNT_ID)
 )
 COMMENT = 'Synthetic many-to-many customer and deposit account relationships';
 
 
 -- ============================================================
--- 6. ACCOUNT TRANSACTIONS
+-- 6. ACCOUNT_TRANSACTION
 -- ============================================================
 
-CREATE OR REPLACE TABLE ACCOUNT_TRANSACTIONS (
+CREATE OR REPLACE TABLE ACCOUNT_TRANSACTION (
     TRANSACTION_ID          NUMBER(18, 0)      NOT NULL,
     ACCOUNT_ID              NUMBER(12, 0)      NOT NULL,
     TRANSACTION_DATE        DATE               NOT NULL,
@@ -193,25 +193,25 @@ CREATE OR REPLACE TABLE ACCOUNT_TRANSACTIONS (
     TRANSACTION_STATUS      VARCHAR(20)        NOT NULL,
     CREATED_TS              TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP(),
 
-    CONSTRAINT PK_ACCOUNT_TRANSACTIONS
+    CONSTRAINT PK_ACCOUNT_TRANSACTION
         PRIMARY KEY (TRANSACTION_ID),
 
-    CONSTRAINT FK_TRANSACTIONS_ACCOUNT
+    CONSTRAINT FK_ACCOUNT_TRANSACTION_ACCOUNT
         FOREIGN KEY (ACCOUNT_ID)
-        REFERENCES ACCOUNTS (ACCOUNT_ID),
+        REFERENCES ACCOUNT (ACCOUNT_ID),
 
-    CONSTRAINT FK_TRANSACTIONS_BRANCH
+    CONSTRAINT FK_ACCOUNT_TRANSACTION_BRANCH
         FOREIGN KEY (BRANCH_ID)
-        REFERENCES BRANCHES (BRANCH_ID)
+        REFERENCES BRANCH (BRANCH_ID)
 )
 COMMENT = 'Synthetic deposit account transaction activity';
 
 
 -- ============================================================
--- 7. LOANS
+-- 7. LOAN
 -- ============================================================
 
-CREATE OR REPLACE TABLE LOANS (
+CREATE OR REPLACE TABLE LOAN (
     LOAN_ID                    NUMBER(12, 0)       NOT NULL,
     LOAN_NUMBER                VARCHAR(20)         NOT NULL,
     CUSTOMER_ID                NUMBER(12, 0)       NOT NULL,
@@ -231,32 +231,32 @@ CREATE OR REPLACE TABLE LOANS (
     CREATED_TS                 TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
     UPDATED_TS                 TIMESTAMP_NTZ       DEFAULT CURRENT_TIMESTAMP(),
 
-    CONSTRAINT PK_LOANS
+    CONSTRAINT PK_LOAN
         PRIMARY KEY (LOAN_ID),
 
-    CONSTRAINT UQ_LOANS_NUMBER
+    CONSTRAINT UQ_LOAN_NUMBER
         UNIQUE (LOAN_NUMBER),
 
-    CONSTRAINT FK_LOANS_CUSTOMER
+    CONSTRAINT FK_LOAN_CUSTOMER
         FOREIGN KEY (CUSTOMER_ID)
-        REFERENCES CUSTOMERS (CUSTOMER_ID),
+        REFERENCES CUSTOMER (CUSTOMER_ID),
 
-    CONSTRAINT FK_LOANS_PRODUCT
+    CONSTRAINT FK_LOAN_PRODUCT
         FOREIGN KEY (PRODUCT_ID)
-        REFERENCES PRODUCTS (PRODUCT_ID),
+        REFERENCES PRODUCT (PRODUCT_ID),
 
-    CONSTRAINT FK_LOANS_BRANCH
+    CONSTRAINT FK_LOAN_BRANCH
         FOREIGN KEY (BRANCH_ID)
-        REFERENCES BRANCHES (BRANCH_ID)
+        REFERENCES BRANCH (BRANCH_ID)
 )
 COMMENT = 'Synthetic retail loan account data';
 
 
 -- ============================================================
--- 8. LOAN PAYMENTS
+-- 8. LOAN_PAYMENT
 -- ============================================================
 
-CREATE OR REPLACE TABLE LOAN_PAYMENTS (
+CREATE OR REPLACE TABLE LOAN_PAYMENT (
     LOAN_PAYMENT_ID          NUMBER(18, 0)      NOT NULL,
     LOAN_ID                  NUMBER(12, 0)      NOT NULL,
     SCHEDULED_PAYMENT_DATE   DATE               NOT NULL,
@@ -271,12 +271,12 @@ CREATE OR REPLACE TABLE LOAN_PAYMENTS (
     CREATED_TS               TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP(),
     UPDATED_TS               TIMESTAMP_NTZ      DEFAULT CURRENT_TIMESTAMP(),
 
-    CONSTRAINT PK_LOAN_PAYMENTS
+    CONSTRAINT PK_LOAN_PAYMENT
         PRIMARY KEY (LOAN_PAYMENT_ID),
 
-    CONSTRAINT FK_LOAN_PAYMENTS_LOAN
+    CONSTRAINT FK_LOAN_PAYMENT_LOAN
         FOREIGN KEY (LOAN_ID)
-        REFERENCES LOANS (LOAN_ID)
+        REFERENCES LOAN (LOAN_ID)
 )
 COMMENT = 'Synthetic scheduled and completed retail loan payments';
 
