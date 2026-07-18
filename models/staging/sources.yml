@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: raw
+    database: PORTFOLIO_DB
+    schema: RAW
+
+    tables:
+      - name: BRANCH
+      - name: PRODUCT
+      - name: CUSTOMER
+      - name: ACCOUNT
+      - name: CUSTOMER_ACCOUNT_RELATIONSHIP
+      - name: ACCOUNT_TRANSACTION
+      - name: LOAN
+      - name: LOAN_PAYMENT
