@@ -1,7 +1,7 @@
 with source as (
 
     select *
-    from {{ source('raw', 'BRANCH') }}
+    from {{ source('raw', 'branch') }}
 
 ),
 

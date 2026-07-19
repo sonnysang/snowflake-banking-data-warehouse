@@ -6,11 +6,26 @@ sources:
     schema: RAW
 
     tables:
-      - name: BRANCH
-      - name: PRODUCT
-      - name: CUSTOMER
-      - name: ACCOUNT
-      - name: CUSTOMER_ACCOUNT_RELATIONSHIP
-      - name: ACCOUNT_TRANSACTION
-      - name: LOAN
-      - name: LOAN_PAYMENT
+      - name: branch
+        identifier: BRANCH
+
+      - name: product
+        identifier: PRODUCT
+
+      - name: customer
+        identifier: CUSTOMER
+
+      - name: account
+        identifier: ACCOUNT
+
+      - name: customer_account_relationship
+        identifier: CUSTOMER_ACCOUNT_RELATIONSHIP
+
+      - name: account_transaction
+        identifier: ACCOUNT_TRANSACTION
+
+      - name: loan
+        identifier: LOAN
+
+      - name: loan_payment
+        identifier: LOAN_PAYMENT

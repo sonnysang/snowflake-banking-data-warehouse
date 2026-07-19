@@ -93,3 +93,81 @@ models:
 
       - name: updated_ts
         description: Timestamp when the record was last updated.
+
+
+  - name: stg_account
+    description: >
+      Staged deposit account records from the raw banking system.
+      Includes account status, balances, rates, branch assignment,
+      product assignment, and account activity dates.
+
+    columns:
+      - name: account_id
+        description: Unique internal identifier for an account.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: account_number
+        description: Business-facing account number.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: product_id
+        description: Identifier of the product associated with the account.
+        data_tests:
+          - not_null
+
+      - name: branch_id
+        description: Identifier of the branch associated with the account.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_branch')
+                field: branch_id
+
+      - name: account_status
+        description: Current status of the account.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - ACTIVE
+                  - CLOSED
+                  - DORMANT
+                  - FROZEN
+
+      - name: open_date
+        description: Date the account was opened.
+        data_tests:
+          - not_null
+
+      - name: close_date
+        description: Date the account was closed, if applicable.
+
+      - name: current_balance
+        description: Current ledger balance of the account.
+
+      - name: available_balance
+        description: Balance currently available for withdrawal or use.
+
+      - name: interest_rate
+        description: Interest rate associated with the account.
+
+      - name: overdraft_limit
+        description: Maximum permitted overdraft amount.
+
+      - name: last_activity_date
+        description: Date of the most recent account activity.
+
+      - name: statement_cycle
+        description: Statement processing cycle assigned to the account.
+
+      - name: created_ts
+        description: Timestamp when the source record was created.
+
+      - name: updated_ts
+        description: Timestamp when the source record was most recently updated.
