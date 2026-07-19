@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: stg_branch
+    description: Staging model for branch master data.
+
+    columns:
+      - name: branch_id
+        description: Unique identifier of the branch.
+        tests:
+          - unique
+          - not_null
+
+      - name: branch_name
+        description: Branch name.
+
+
+  - name: stg_customer
+    description: Staging model for customer data.
+
+    columns:
+      - name: customer_id
+        description: Unique identifier of the customer.
+        tests:
+          - unique
+          - not_null
+      - name: branch_id
+        description: Identifier of the customer’s home branch.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_branch')
+                field: branch_id
+
+      - name: email
+        description: Customer email standardized to lowercase.
+
+      - name: customer_status
+        description: Current customer status.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ACTIVE', 'INACTIVE', 'CLOSED']
+
+  - name: stg_customer_account_relationship
+    description: >
+      Cleaned and standardized customer-to-account relationship records.
+      Represents the many-to-many relationship between customers and deposit accounts.
+
+    columns:
+
+      - name: relationship_id
+        description: Unique identifier for the customer-account relationship.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: Customer identifier.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customer')
+                field: customer_id
+
+      - name: account_id
+        description: Deposit account identifier.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_account')
+                field: account_id
+
+      - name: relationship_type
+        description: Type of relationship between the customer and account (e.g., PRIMARY, JOINT, AUTHORIZED_SIGNER).
+
+      - name: ownership_percentage
+        description: Percentage of ownership for this customer on the account.
+
+      - name: relationship_start_date
+        description: Date the customer-account relationship became effective.
+
+      - name: relationship_end_date
+        description: Date the relationship ended, if applicable.
+
+      - name: active_flag
+        description: Indicates whether the relationship is currently active.
+
+      - name: created_ts
+        description: Timestamp when the record was created.
+
+      - name: updated_ts
+        description: Timestamp when the record was last updated.
