@@ -15,6 +15,7 @@ renamed as (
         trim(phone_number) as phone_number,
         cast(date_of_birth as date) as date_of_birth,
         cast(CREATED_TS as date) as created_date,
+        -- CREATED_TS,
         PRIMARY_BRANCH_ID as branch_id,
         customer_status
     from source

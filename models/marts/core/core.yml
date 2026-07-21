@@ -1,0 +1,200 @@
+version: 2
+
+models:
+  - name: dim_customer
+
+    description: >
+      Customer dimension containing one row per customer enriched with
+      branch information and summarized customer-account relationship
+      statistics.
+
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_name
+        description: Full customer name.
+
+      - name: customer_status
+        description: Current status of the customer.
+        tests:
+          - not_null
+
+      - name: branch_id
+        description: Identifier of the customer's primary branch.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_branch')
+                field: branch_id
+
+      - name: total_account_count
+        description: Total number of accounts associated with the customer.
+        tests:
+          - not_null
+
+      - name: active_account_count
+        description: Number of active accounts associated with the customer.
+        tests:
+          - not_null
+
+      - name: customer_age
+        description: Customer age in completed years when date of birth is available.
+
+      - name: customer_tenure_days
+        description: Number of days since the customer record was created.
+        tests:
+          - not_null
+
+      - name: age_group
+        description: Customer age-band classification.
+        tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - MINOR
+                  - 18-29
+                  - 30-44
+                  - 45-59
+                  - 60+
+
+      - name: active_customer_flag
+        description: Indicates whether the customer status is active.
+        tests:
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+      - name: multi_account_customer_flag
+        description: Indicates whether the customer has more than one active account.
+        tests:
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+  - name: dim_loan
+    description: >
+      Loan dimension containing one row per retail loan with customer,
+      product, branch, balance, delinquency, and summarized payment attributes.
+
+    columns:
+      - name: loan_id
+        description: Unique identifier for the loan.
+        tests:
+          - not_null
+          - unique
+
+      - name: loan_number
+        description: Unique business loan number.
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        description: Identifier of the customer responsible for the loan.
+        tests:
+          - not_null
+
+      - name: product_id
+        description: Identifier of the loan product.
+        tests:
+          - not_null
+
+      - name: branch_id
+        description: Identifier of the branch responsible for the loan.
+        tests:
+          - not_null
+
+      - name: loan_status
+        description: Current lifecycle status of the loan.
+        tests:
+          - not_null
+
+      - name: delinquency_bucket
+        description: Delinquency classification based on days past due.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - CURRENT
+                  - 1_29_DAYS
+                  - 30_59_DAYS
+                  - 60_89_DAYS
+                  - 90_PLUS_DAYS
+                  - UNKNOWN
+
+      - name: active_loan_flag
+        description: Indicates whether the loan is active.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+      - name: delinquent_flag
+        description: Indicates whether the loan is past due.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+  - name: fct_loan_payment
+    description: >
+      Loan payment fact table containing one row per scheduled loan payment
+      with payment amounts, allocations, timing metrics, and status flags.
+
+    columns:
+      - name: loan_payment_id
+        description: Unique identifier for the loan payment record.
+        tests:
+          - not_null
+          - unique
+
+      - name: loan_id
+        description: Identifier of the loan associated with the payment.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_loan')
+                field: loan_id
+
+      - name: scheduled_payment_date
+        description: Date the payment was scheduled to be made.
+        tests:
+          - not_null
+
+      - name: scheduled_amount
+        description: Scheduled payment amount.
+
+      - name: total_payment_amount
+        description: Actual total payment amount.
+
+      - name: payment_status
+        description: Current status of the payment record.
+        tests:
+          - not_null
+
+      - name: late_payment_flag
+        description: Indicates whether payment occurred after its due date.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+      - name: overdue_payment_flag
+        description: Indicates whether the payment is overdue and incomplete.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+
+
