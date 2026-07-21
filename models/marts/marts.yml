@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: dim_account
+    description: >
+      Account dimension containing one row per deposit account with product,
+      branch, ownership, lifecycle, and activity attributes.
+
+    columns:
+      - name: account_id
+        description: Unique identifier for the deposit account.
+        tests:
+          - not_null
+          - unique
+
+      - name: account_number
+        description: Unique business account number.
+        tests:
+          - not_null
+          - unique
+
+      - name: product_id
+        description: Identifier of the product associated with the account.
+        tests:
+          - not_null
+
+      - name: branch_id
+        description: Identifier of the branch responsible for the account.
+        tests:
+          - not_null
+
+      - name: account_status
+        description: Current lifecycle status of the account.
+        tests:
+          - not_null
+
+      - name: open_account_flag
+        description: Indicates whether the account is currently open.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+      - name: joint_account_flag
+        description: Indicates whether multiple customers currently own the account.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+      - name: account_activity_status
+        description: Classification based on the recency of account activity.
+        tests:
+          - not_null
