@@ -112,6 +112,9 @@ final as (
         ) as customer_tenure_months,
 
         case
+            when cust.date_of_birth is null
+                then 'UNKNOWN'
+                
             when datediff(
                 year,
                 cust.date_of_birth,

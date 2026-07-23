@@ -40,8 +40,10 @@ models:
         data_tests:
           - accepted_values:
               arguments:
-                values: ['ACTIVE', 'INACTIVE', 'CLOSED']
-
+                values:
+                  - ACTIVE
+                  - INACTIVE
+                  - DECEASED
   - name: stg_customer_account_relationship
     description: >
       Cleaned and standardized customer-to-account relationship records.
@@ -139,6 +141,7 @@ models:
                   - CLOSED
                   - DORMANT
                   - FROZEN
+                  - CHARGED_OFF
 
       - name: open_date
         description: Date the account was opened.
