@@ -120,7 +120,15 @@ snowflake-banking-data-warehouse
 - Full documentation
 
 ---
+## Generate Sample Data
 
+python .\python\generate_synthetic_data.py `
+    --customers 20000 `
+    --accounts 40000 `
+    --transactions 1000000 `
+    --loans 10000
+
+---
 ## Data Privacy
 
 This repository contains only synthetic data generated for educational and portfolio purposes. It contains no confidential, proprietary, or customer information.
